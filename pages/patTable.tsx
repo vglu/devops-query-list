@@ -1,3 +1,4 @@
+import Layout from "../components/Layout";
 import React, { FC, useCallback, useMemo, useState } from 'react';
 import MaterialReactTable, { MaterialReactTableProps, MRT_Cell, MRT_ColumnDef, MRT_Row } from 'material-react-table';
 import {
@@ -18,7 +19,7 @@ import styles from '../styles/Home.module.css';
 import Head from 'next/head'
 import Image from 'next/image'
 import { PrismaClient, PatTable, Prisma } from '@prisma/client';
-import Layout from "../components/Layout";
+
 
 const prisma = new PrismaClient();
 
@@ -87,7 +88,7 @@ function PatTable({ initialPatTable }) {
         [cellId: string]: string;
     }>({});
 
-    const handleCreateNewRow = async (values: Pat) => {
+    const handleCreateNewRow = async (values) => {
         tableData.push(values);
         setTableData([...tableData]);
         try {
@@ -241,7 +242,8 @@ function PatTable({ initialPatTable }) {
                 </Box>
                 )}
             renderTopToolbarCustomActions={() => (
-                    <Button
+                    <Button 
+                        type="any"
                         onClick={() => setCreateModalOpen(true)}
                         variant="contained"
                     >
@@ -306,7 +308,7 @@ export const CreateNewPatModal: FC<{
         </DialogContent>
         <DialogActions sx={{ p: '1.25rem' }}>
             <Button onClick={onClose}>Cancel</Button>
-            <Button onClick={handleSubmit} variant="contained">
+            <Button type="any" onClick={handleSubmit} variant="contained">
                 Create New PAT
             </Button>
         </DialogActions>
