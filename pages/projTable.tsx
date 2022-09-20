@@ -19,7 +19,7 @@ import Head from 'next/head'
 import Image from 'next/image'
 import { PrismaClient, PatTable, Prisma } from '@prisma/client';
 import Layout from "../components/Layout";
-
+import 
 const prisma = new PrismaClient();
 
 type Pat = {
