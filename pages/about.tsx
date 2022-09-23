@@ -1,7 +1,7 @@
 import React from 'react'
 import { useSession } from "next-auth/react";
 
-const about = () => {
+const About = () => {
   const { data: session, status } = useSession();
   return (
     <>About 
@@ -11,4 +11,4 @@ const about = () => {
   )
 }
 
-export default about
+export default About

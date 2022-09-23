@@ -1,7 +1,7 @@
 import React from 'react'
 import { useSession } from "next-auth/react";
 
-const posts = () => {
+const Posts = () => {
   //const st = JSON.stringify(getSession());
   const st = JSON.stringify(useSession().data);
   return (
@@ -11,7 +11,7 @@ const posts = () => {
   )
 }
 
-export default posts
+export default Posts
 
 // posts.getLayout = function getLayout(page) {
 //   return (
