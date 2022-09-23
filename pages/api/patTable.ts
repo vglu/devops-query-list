@@ -1,5 +1,3 @@
-import { PatTable } from '@prisma/client';
-// Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { PrismaClient} from '@prisma/client';
 
@@ -19,25 +17,31 @@ export default async function handler(
     switch (req.method) {
         case 'POST':
             patsData.dateExp = strDate;
-            ret = await prisma.PatTable.create({
+            ret = await prisma.patTable.create({
                 data: patsData
             })
           break;
         case 'DELETE':
-            ret = await prisma.PatTable.delete({
-                where: {
-                    patId: patsData.patId,
-                },
-              })
+            ret = await prisma.patTable.delete({
+              where: {
+                PatIdOwnerId: {
+                  patId: patsData.patId, 
+                  ownerId: patsData.ownerId,
+                }
+              }
+            });
           break;
         case 'PUT':
             patsData.dateExp = strDate;
-            ret = await prisma.PatTable.update({
-                where: {
-                    patId: patsData.patId,
-                },
-                data : patsData,
-              })
+            ret = await prisma.patTable.update({
+              where: {
+                PatIdOwnerId: {
+                  patId: patsData.patId, 
+                  ownerId: patsData.ownerId,
+                }
+              },
+              data : patsData,
+              });
           break;
         default:
             status = 401;

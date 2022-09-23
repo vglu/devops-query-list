@@ -1,4 +1,3 @@
-import Layout from "../components/Layout";
 import React, { FC, useCallback, useMemo, useState } from 'react';
 import MaterialReactTable, { MaterialReactTableProps, MRT_Cell, MRT_ColumnDef, MRT_Row } from 'material-react-table';
 import {
@@ -14,12 +13,19 @@ import {
     TextField,
     Tooltip
 } from '@mui/material';
-import { Delete, Edit } from '@mui/icons-material';
+import { DateRangeTwoTone, Delete, Edit } from '@mui/icons-material';
 import styles from '../styles/Home.module.css';
 import Head from 'next/head'
 import Image from 'next/image'
 import { PrismaClient, PatTable, Prisma } from '@prisma/client';
-
+import { unstable_getServerSession } from "next-auth/next"
+import { authOptions } from "./api/auth/[...nextauth]"
+import type { GetServerSidePropsContext } from "next"
+import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
+import dayjs, { Dayjs } from 'dayjs';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+import { log } from 'console';
 
 const prisma = new PrismaClient();
 
@@ -31,10 +37,23 @@ type Pat = {
     description: string
 }
 
-export async function getServerSideProps(context) { 
-    const pats: PatTable[] = await prisma.PatTable.findMany();
+export async function getServerSideProps(context: GetServerSidePropsContext) { 
+    
+    const session = await unstable_getServerSession(
+        context.req,
+        context.res,
+        authOptions
+      );
+    const pats: PatTable[] = await prisma.patTable.findMany({
+        where: {
+            ownerId: {
+                equals: session?.user?.id,
+            }
+        }
+    });
     return {
         props: {
+            session: session,
             initialPatTable: JSON.parse(JSON.stringify(pats))
         }
     };
@@ -80,15 +99,17 @@ async function deletePats(pat: Prisma.PatTableCreateInput) {
 }
 
 
-function PatTable({ initialPatTable }) {
+function PatTable({ session, initialPatTable }) {
 
     const [createModalOpen, setCreateModalOpen] = useState(false);
     const [tableData, setTableData] = useState<PatTable[]>(() => initialPatTable);
     const [validationErrors, setValidationErrors] = useState<{
         [cellId: string]: string;
     }>({});
+    const ownerId = session?.user?.id;
 
     const handleCreateNewRow = async (values) => {
+        values.ownerId = ownerId;
         tableData.push(values);
         setTableData([...tableData]);
         try {
@@ -100,6 +121,7 @@ function PatTable({ initialPatTable }) {
 
     const handleSaveRowEdits: MaterialReactTableProps<Pat>['onEditingRowSave'] = async ({ exitEditingMode, row, values }) => {
         if (validationErrors && !Object.keys(validationErrors).length) {
+            values.ownerId = ownerId;
             tableData[row.index] = values;
             // send/receive api updates here, then refetch or update local table data for re-render
             setTableData([...tableData]);
@@ -113,9 +135,8 @@ function PatTable({ initialPatTable }) {
     };
 
     const handleDeleteRow = useCallback(async (row: MRT_Row<Pat>) => {
-        console.log(row);
-        const delPat = tableData;
-        if (!confirm(`Are you sure you want to delete ${row.getValue('patId')}`)) {
+        const delPat = row.original;
+        if (!confirm(`Are you sure you want to delete ${delPat.patId}`)) {
             return;
         }
         // send api delete request here, then refetch or update local table data for re-render
@@ -134,12 +155,13 @@ function PatTable({ initialPatTable }) {
             error: !!validationErrors[cell.id],
             helperText: validationErrors[cell.id],
             onBlur: (event) => {
-                const isValid = cell.column.id === 'PatId' ? validateRequired(event.target.value): true;
+                console.log(cell);
+                console.log(event);
+                const isValid = cell.column.id === 'pat' ? validateRequired(event.target.value): true;
                 if (!isValid) { // set validation error for cell if invalid
                     setValidationErrors({
                         ...validationErrors,
-                        [cell.id]: `${cell.column.columnDef.header
-                            } is required`
+                        [cell.id]: `${cell.column.columnDef.header} is required`
                     });
                 } else { // remove validation error for cell if valid
                     delete validationErrors[cell.id];
@@ -155,7 +177,11 @@ function PatTable({ initialPatTable }) {
         {
             accessorKey: 'patId', // access nested data with dot notation
             header: 'Pat Id',
-            enableEditing: false
+            enableEditing: false,
+            muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
+                ...getCommonEditTextFieldProps(cell),
+            }),
+            validate: rowData => rowData.name !== '',
         },
         {
             accessorKey: 'description',
@@ -176,7 +202,7 @@ function PatTable({ initialPatTable }) {
             )
         },
         {
-            accessorKey: 'dateExp', // normal accessorKey
+            accessorKey: 'dateExp', 
             header: 'Expiration date',
             type: "date",
             muiTableBodyCellEditTextFieldProps: ({ cell }) => (
@@ -184,21 +210,19 @@ function PatTable({ initialPatTable }) {
                     ...getCommonEditTextFieldProps(cell)
                 }
             )
-        }, {
-            accessorKey: 'ownerId',
-            header: 'Owner',
-            muiTableBodyCellEditTextFieldProps: ({ cell }) => (
-                {
-                    ...getCommonEditTextFieldProps(cell)
-                }
-            )
-        },
+        }, 
     ], [getCommonEditTextFieldProps],);
 
+    if (!session || !session.user) {
+        return (
+            <div>
+                <h1>Not signed in</h1>
+            </div>
+        );
+    }
 
     //const [pats, setPats] = useState(initialPatTable);
     return (
-        <Layout>
         <div className={styles.container}>
             <Head>
                 <title>Setup personal access token</title>
@@ -243,7 +267,6 @@ function PatTable({ initialPatTable }) {
                 )}
             renderTopToolbarCustomActions={() => (
                     <Button 
-                        type="any"
                         onClick={() => setCreateModalOpen(true)}
                         variant="contained"
                     >
@@ -258,7 +281,6 @@ function PatTable({ initialPatTable }) {
                 onSubmit={handleCreateNewRow}
             />
         </div>
-        </Layout>
     )
 }
 
@@ -277,38 +299,60 @@ export const CreateNewPatModal: FC<{
   
     const handleSubmit = () => {
       //put your validation logic here
+      values['dateExp'] = dateExpValue?.toISOString();
       onSubmit(values);
       onClose();
     };
   
+    const [dateExpValue, setDateExpValue] = React.useState<Dayjs | null>(
+        dayjs(new Date()).add(1, 'year')
+      );
+      //setValues({ ...values, ['dateExp']: dateExpValue })
+    
     return (
       <Dialog open={open}>
         <DialogTitle textAlign="center">Create New PAT</DialogTitle>
         <DialogContent>
           <form onSubmit={(e) => e.preventDefault()}>
-            <Stack
-              sx={{
-                width: '100%',
-                minWidth: { xs: '300px', sm: '360px', md: '400px' },
-                gap: '1.5rem',
-              }}
-            >
-              {columns.map((column) => (
-                <TextField
-                key={column.accessorKey}
-                label={column.header}
-                name={column.accessorKey}
-                onChange={(e) =>
-                    setValues({ ...values, [e.target.name]: e.target.value })
-                }
-                />
-            ))}
-            </Stack>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <Stack
+                sx={{
+                    width: '100%',
+                    minWidth: { xs: '300px', sm: '360px', md: '400px' },
+                    gap: '1.5rem',
+                }}
+                >
+                {columns.map((column) => {
+                    if (column.accessorKey === 'dateExp') {
+                        return <DesktopDatePicker
+                            key="dateExp"
+                            label="Expiration date"
+                            
+                            value={dateExpValue}
+                            minDate={dayjs('2017-01-01')}
+                            onChange={(newValue: Dayjs | null) => {
+                                setValues({ ...values, ['dateExp']: newValue })
+                                setDateExpValue(newValue);
+                            }}
+                            renderInput={(params) => <TextField {...params} />}
+                        />
+                    }
+                    return <TextField
+                        key={column.accessorKey}
+                        label={column.header}
+                        name={column.accessorKey}
+                        onChange={(e) =>
+                            setValues({ ...values, [e.target.name]: e.target.value })
+                        }
+                    />
+                    })}    
+                </Stack>
+            </LocalizationProvider>
           </form>
         </DialogContent>
         <DialogActions sx={{ p: '1.25rem' }}>
             <Button onClick={onClose}>Cancel</Button>
-            <Button type="any" onClick={handleSubmit} variant="contained">
+            <Button onClick={handleSubmit} variant="contained">
                 Create New PAT
             </Button>
         </DialogActions>
@@ -316,7 +360,12 @@ export const CreateNewPatModal: FC<{
     );
   };
   
-  const validateRequired = (value: string) => !!value.length;
+  const validateRequired = (value: string) => {
+    console.log(value);
+    console.log("pat");
+    return !!value.length;
+}
+
   const validateEmail = (email: string) =>
     !!email.length &&
     email

@@ -1,4 +1,4 @@
-import NextAuth from "next-auth";
+import NextAuth, { NextAuthOptions } from "next-auth"
 import GithubProvider from "next-auth/providers/github"
 import EmailProvider from "next-auth/providers/email"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
@@ -7,7 +7,7 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export default NextAuth({
+export const authOptions: NextAuthOptions ={
     secret: process.env.SECRET,
     adapter: PrismaAdapter(prisma),
     providers: [
@@ -41,5 +41,7 @@ export default NextAuth({
           return session
         }
       }
-  })
+  }
+
+  export default NextAuth(authOptions)
 

@@ -1,16 +1,23 @@
 import React from 'react'
 import { useSession } from "next-auth/react";
 
-
-
 const posts = () => {
-  const { data: session, status } = useSession();
-  const st = JSON.stringify(session);
+  //const st = JSON.stringify(getSession());
+  const st = JSON.stringify(useSession().data);
   return (
-    <h2>post {st}</h2>
-    
+    <h2>post: {st}</h2>
+
     
   )
 }
 
 export default posts
+
+// posts.getLayout = function getLayout(page) {
+//   return (
+//     <Layout>
+//       <Sidebar />
+//       {page}
+//     </Layout>
+//   )
+// }
