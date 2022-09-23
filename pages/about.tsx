@@ -1,22 +1,14 @@
 import React from 'react'
-import getSession from "./api/getSession"
+import { useSession } from "next-auth/react";
 
 const about = () => {
+  const { data: session, status } = useSession();
   return (
     <>About 
         <br />
-        {JSON.stringify(getSession())}
+        {JSON.stringify(session)}
     </>
   )
 }
 
 export default about
-
-// posts.getLayout = function getLayout(page) {
-//   return (
-//     <Layout>
-//       <Sidebar />
-//       {page}
-//     </Layout>
-//   )
-// }
