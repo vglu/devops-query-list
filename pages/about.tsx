@@ -1,17 +1,16 @@
 import React from 'react'
 import getSession from "./api/getSession"
 
-const posts = () => {
-  //const st = JSON.stringify(getSession());
-  const st = JSON.stringify(getSession());
+const about = () => {
   return (
-    <h2>post {st}</h2>
-
-    
+    <>About 
+        <br />
+        {JSON.stringify(getSession())}
+    </>
   )
 }
 
-export default posts
+export default about
 
 // posts.getLayout = function getLayout(page) {
 //   return (

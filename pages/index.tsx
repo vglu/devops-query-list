@@ -11,9 +11,10 @@ const IndexPage = () => {
   if (session) {
     return (
       <div>
-        Hello, {session.user.email ?? session.user.name} and {JSON.stringify(session)}<br />
+        Hello, {session?.user?.email ?? session?.user?.name} and {JSON.stringify(session)}<br />
         <button onClick={() => signOut()}>Sign out</button>
       </div>
+
     );
   } else {
     return (

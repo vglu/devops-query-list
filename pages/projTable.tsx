@@ -13,36 +13,70 @@ import {
     TextField,
     Tooltip
 } from '@mui/material';
-import { Delete, Edit } from '@mui/icons-material';
+import { DateRangeTwoTone, Delete, Edit } from '@mui/icons-material';
 import styles from '../styles/Home.module.css';
 import Head from 'next/head'
 import Image from 'next/image'
-import { PrismaClient, PatTable, Prisma } from '@prisma/client';
-import Layout from "../components/Layout";
-import 
+import { PrismaClient, ProjTable, PatTable, Prisma } from '@prisma/client';
+import { unstable_getServerSession } from "next-auth/next"
+import { authOptions } from "./api/auth/[...nextauth]"
+import type { GetServerSidePropsContext } from "next"
+import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
+import dayjs, { Dayjs } from 'dayjs';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+import Autocomplete from '@mui/material/Autocomplete';
+
 const prisma = new PrismaClient();
 
-type Pat = {
+type Proj = {
+    projId: string,
+    org: string,
+    project: string, 
+    query: string,
+    url: string,
     patId: string,
-    pat: string,
-    dateExp: string,
+    queryName: string,
     ownerId: string,
-    description: string
-}
+    patTablePatId:string
+};
 
-export async function getServerSideProps(context) { 
-    const pats: PatTable[] = await prisma.PatTable.findMany();
+let pats: PatTable[];
+
+export async function getServerSideProps(context: GetServerSidePropsContext) { 
+    
+    const session = await unstable_getServerSession(
+        context.req,
+        context.res,
+        authOptions
+      );
+    const projs: ProjTable[] = await prisma.projTable.findMany({
+        where: {
+            ownerId: {
+                equals: session?.user?.id,
+            }
+        }
+    });
+    const patsLocal: PatTable[] = await prisma.patTable.findMany({
+        where: {
+            ownerId: {
+                equals: session?.user?.id,
+            }
+        }
+    });
     return {
         props: {
-            initialPatTable: JSON.parse(JSON.stringify(pats))
+            session: session,
+            initialProjTable: JSON.parse(JSON.stringify(projs)),
+            initialPatTable: JSON.parse(JSON.stringify(patsLocal))
         }
     };
 }
 
-async function savePats(pat: Prisma.PatTableCreateInput) {
-    const responce = await fetch('/api/patTable', {
+async function saveProjs(proj: Prisma.ProjTableCreateInput) {
+    const responce = await fetch('/api/projTable', {
         method: 'POST',
-        body: JSON.stringify(pat)
+        body: JSON.stringify(proj)
     });
 
     if (!responce.ok) {
@@ -52,10 +86,10 @@ async function savePats(pat: Prisma.PatTableCreateInput) {
     return await responce.json();
 }
 
-async function updatePats(pat: Prisma.PatTableCreateInput) {
-    const responce = await fetch('/api/patTable', {
+async function updateProjs(proj: Prisma.ProjTableCreateInput) {
+    const responce = await fetch('/api/projTable', {
         method: 'PUT',
-        body: JSON.stringify(pat)
+        body: JSON.stringify(proj)
     });
 
     if (!responce.ok) {
@@ -65,10 +99,10 @@ async function updatePats(pat: Prisma.PatTableCreateInput) {
     return await responce.json();
 }
 
-async function deletePats(pat: Prisma.PatTableCreateInput) {
-    const responce = await fetch('/api/patTable', {
+async function deleteProjs(proj: Prisma.ProjTableCreateInput) {
+    const responce = await fetch('/api/projTable', {
         method: 'DELETE',
-        body: JSON.stringify(pat)
+        body: JSON.stringify(proj)
     });
 
     if (!responce.ok) {
@@ -79,66 +113,71 @@ async function deletePats(pat: Prisma.PatTableCreateInput) {
 }
 
 
-function PatTable({ initialPatTable }) {
+function ProjTable({ session, initialProjTable, initialPatTable }) {
 
     const [createModalOpen, setCreateModalOpen] = useState(false);
-    const [tableData, setTableData] = useState<PatTable[]>(() => initialPatTable);
+    const [tableData, setTableData] = useState<ProjTable[]>(() => initialProjTable);
     const [validationErrors, setValidationErrors] = useState<{
         [cellId: string]: string;
     }>({});
+    pats = initialPatTable;
+    const patList = pats.map(element => element.patId);
+    
+    const ownerId = session?.user?.id;
 
-    const handleCreateNewRow = async (values: Pat) => {
+    const handleCreateNewRow = async (values) => {
+        values.ownerId = ownerId;
         tableData.push(values);
         setTableData([...tableData]);
         try {
-            await savePats(values);
+            await saveProjs(values);
         } catch (err) {
             console.log(err);
         }
     };
 
-    const handleSaveRowEdits: MaterialReactTableProps<Pat>['onEditingRowSave'] = async ({ exitEditingMode, row, values }) => {
+    const handleSaveRowEdits: MaterialReactTableProps<Proj>['onEditingRowSave'] = async ({ exitEditingMode, row, values }) => {
         if (validationErrors && !Object.keys(validationErrors).length) {
+            values.ownerId = ownerId;
             tableData[row.index] = values;
             // send/receive api updates here, then refetch or update local table data for re-render
             setTableData([...tableData]);
             exitEditingMode(); // required to exit editing mode and close modal
             try {
-                await updatePats(values)
+                await updateProjs(values)
             } catch (err) {
                 console.log(err);
             }
         }
     };
 
-    const handleDeleteRow = useCallback(async (row: MRT_Row<Pat>) => {
-        console.log(row);
-        const delPat = tableData;
-        if (!confirm(`Are you sure you want to delete ${row.getValue('patId')}`)) {
+    const handleDeleteRow = useCallback(async (row: MRT_Row<Proj>) => {
+        const delProj = row.original;
+
+        if (!confirm(`Are you sure you want to delete ${delProj.projId}`)) {
             return;
         }
         // send api delete request here, then refetch or update local table data for re-render
         tableData.splice(row.index, 1);
         setTableData([...tableData]);
         try {
-            await deletePats(delPat)
+            await deleteProjs(delProj)
         } catch (err) {
             console.log(err);
         }
 
     }, [tableData],);
 
-    const getCommonEditTextFieldProps = useCallback((cell: MRT_Cell<Pat>,): MRT_ColumnDef<Pat>['muiTableBodyCellEditTextFieldProps'] => {
+    const getCommonEditTextFieldProps = useCallback((cell: MRT_Cell<Proj>,): MRT_ColumnDef<Proj>['muiTableBodyCellEditTextFieldProps'] => {
         return {
             error: !!validationErrors[cell.id],
             helperText: validationErrors[cell.id],
             onBlur: (event) => {
-                const isValid = cell.column.id === 'PatId' ? validateRequired(event.target.value): true;
+                const isValid = cell.column.id === 'projId' ? validateRequired(event.target.value): true;
                 if (!isValid) { // set validation error for cell if invalid
                     setValidationErrors({
                         ...validationErrors,
-                        [cell.id]: `${cell.column.columnDef.header
-                            } is required`
+                        [cell.id]: `${cell.column.columnDef.header} is required`
                     });
                 } else { // remove validation error for cell if valid
                     delete validationErrors[cell.id];
@@ -150,15 +189,15 @@ function PatTable({ initialPatTable }) {
         };
     }, [validationErrors],);
 
-    const columns = useMemo<MRT_ColumnDef<Pat>[]>(() => [
+    const columns = useMemo<MRT_ColumnDef<Proj>[]>(() => [
         {
-            accessorKey: 'patId', // access nested data with dot notation
-            header: 'Pat Id',
+            accessorKey: 'projId', // access nested data with dot notation
+            header: 'ProjId',
             enableEditing: false
         },
         {
-            accessorKey: 'description',
-            header: 'Description',
+            accessorKey: 'org',
+            header: 'Organisation',
             muiTableBodyCellEditTextFieldProps: ({ cell }) => (
                 {
                     ...getCommonEditTextFieldProps(cell)
@@ -166,8 +205,8 @@ function PatTable({ initialPatTable }) {
             )
         },
         {
-            accessorKey: 'pat',
-            header: 'Pat',
+            accessorKey: 'project',
+            header: 'Project name',
             muiTableBodyCellEditTextFieldProps: ({ cell }) => (
                 {
                     ...getCommonEditTextFieldProps(cell)
@@ -175,39 +214,67 @@ function PatTable({ initialPatTable }) {
             )
         },
         {
-            accessorKey: 'dateExp', // normal accessorKey
-            header: 'Expiration date',
-            type: "date",
+            accessorKey: 'query', 
+            header: 'Query Id',
             muiTableBodyCellEditTextFieldProps: ({ cell }) => (
                 {
                     ...getCommonEditTextFieldProps(cell)
                 }
             )
-        }, {
-            accessorKey: 'ownerId',
-            header: 'Owner',
+        }, 
+        {
+            accessorKey: 'url',
+            header: 'URL to Project',
+            type: 'url',
             muiTableBodyCellEditTextFieldProps: ({ cell }) => (
                 {
                     ...getCommonEditTextFieldProps(cell)
                 }
             )
-        },
+        }, 
+        {
+            accessorKey: 'patTablePatId',
+            header: 'PAT',
+
+            muiTableBodyCellEditTextFieldProps: {
+                select: true, //change to select for a dropdown
+                children: patList.map((pt) => (
+                  <MenuItem key={pt} value={pt}>
+                    {pt}
+                  </MenuItem>
+                )),
+                },
+        }, 
+        {
+            accessorKey: 'queryName',
+            header: 'queryName',
+            muiTableBodyCellEditTextFieldProps: ({ cell }) => (
+                {
+                    ...getCommonEditTextFieldProps(cell)
+                }
+            )
+        }, 
     ], [getCommonEditTextFieldProps],);
 
+    if (!session || !session.user) {
+        return (
+            <div>
+                <h1>Not signed in</h1>
+            </div>
+        );
+    }
 
-    //const [pats, setPats] = useState(initialPatTable);
     return (
-        <Layout>
         <div className={styles.container}>
             <Head>
                 <title>Setup personal access token</title>
-                <meta name="description" content="Setup access token" />
+                <meta name="description" content="Setup projects property" />
                 <link rel="icon" href="/favicon.ico" />
             </Head>
 
             <main>
                 <h1 className={styles.title}>
-                Setup personal Access token (PAT)
+                Setup projects property
                 </h1>
                 <br />
             </main>
@@ -241,29 +308,28 @@ function PatTable({ initialPatTable }) {
                 </Box>
                 )}
             renderTopToolbarCustomActions={() => (
-                    <Button
+                    <Button 
                         onClick={() => setCreateModalOpen(true)}
                         variant="contained"
                     >
-                        Create New Access token
+                        Create New project
                     </Button>
                 )}
             />
-            <CreateNewPatModal
+            <CreateNewProjModal
                 columns={columns}
                 open={createModalOpen}
                 onClose={() => setCreateModalOpen(false)}
                 onSubmit={handleCreateNewRow}
             />
         </div>
-        </Layout>
     )
 }
 
-export const CreateNewPatModal: FC<{
-    columns: MRT_ColumnDef<Pat>[];
+export const CreateNewProjModal: FC<{
+    columns: MRT_ColumnDef<Proj>[];
     onClose: () => void;
-    onSubmit: (values: Pat) => void;
+    onSubmit: (values: Proj) => void;
     open: boolean;
     }> = ({ open, columns, onClose, onSubmit }) => {
     const [values, setValues] = useState<any>(() =>
@@ -278,36 +344,71 @@ export const CreateNewPatModal: FC<{
       onSubmit(values);
       onClose();
     };
-  
+    
+
+    // const patList = pats.map(element => { 
+    //     return {value: element.patId, label: element.description}
+    // });
+    const patList = pats.map(element => element.patId); 
+    
+    const [pat, setPat] = React.useState<string | null>(patList[0]?.value);
+    const [inputPatValue, setInputPatValue] = React.useState('');
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setPat(event.target.value);
+      };
+
+
     return (
       <Dialog open={open}>
-        <DialogTitle textAlign="center">Create New PAT</DialogTitle>
+        <DialogTitle textAlign="center">Create New project</DialogTitle>
         <DialogContent>
           <form onSubmit={(e) => e.preventDefault()}>
-            <Stack
-              sx={{
-                width: '100%',
-                minWidth: { xs: '300px', sm: '360px', md: '400px' },
-                gap: '1.5rem',
-              }}
-            >
-              {columns.map((column) => (
-                <TextField
-                key={column.accessorKey}
-                label={column.header}
-                name={column.accessorKey}
-                onChange={(e) =>
-                    setValues({ ...values, [e.target.name]: e.target.value })
-                }
-                />
-            ))}
-            </Stack>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <Stack
+                sx={{
+                    width: '100%',
+                    minWidth: { xs: '300px', sm: '360px', md: '400px' },
+                    gap: '1.5rem',
+                }}
+                >
+                {columns.map((column) => {
+                    if (column.accessorKey === 'patTablePatId') {
+                        return <Autocomplete
+                            key={column.accessorKey}
+                            value = {pat}
+                            onChange={(event: any, newValue: string | null) => {
+                                setValues({ ...values, [event.target.name]: event.target.value })
+                                setPat(event.target.value);
+                            }}
+                            inputValue={inputPatValue}
+                            onInputChange={(event, newInputPatValue) => {
+                            setInputPatValue(newInputPatValue);
+                            }}
+                            id="controllable-states-demo"
+                            options={patList}
+                            sx={{ width: 300 }}
+                            renderInput={(params) => <TextField {...params} label={column.header} />}
+                        />
+                    }      
+
+                    return <TextField
+                        key={column.accessorKey}
+                        label={column.header}
+                        name={column.accessorKey}
+                        type={column.type}
+                        onChange={(e) =>
+                            setValues({ ...values, [e.target.name]: e.target.value })
+                        }
+                    />
+                    })}    
+                </Stack>
+            </LocalizationProvider>
           </form>
         </DialogContent>
         <DialogActions sx={{ p: '1.25rem' }}>
             <Button onClick={onClose}>Cancel</Button>
             <Button onClick={handleSubmit} variant="contained">
-                Create New PAT
+                Create New project
             </Button>
         </DialogActions>
       </Dialog>
@@ -326,4 +427,4 @@ export const CreateNewPatModal: FC<{
   const validateAge = (age: number) => age >= 18 && age <= 50;
 
 
-export default PatTable;
+export default ProjTable;

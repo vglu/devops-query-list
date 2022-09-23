@@ -11,18 +11,18 @@ datasource db {
 }
 
 model Account {
-  id                 String  @id @default(cuid())
-  userId             String
-  type               String
-  provider           String
-  providerAccountId  String
-  refresh_token      String?  
-  access_token       String?  
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String?  
-  session_state      String?
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -56,20 +56,26 @@ model VerificationToken {
 }
 
 model PatTable {
-  patId       String   @id
+  patId       String      @id
   pat         String
-  dateExp     DateTime? @default(now())
+  dateExp     DateTime?   @default(now())
   ownerId     String
   description String?
+  ProjTable   ProjTable[]
+
+  @@unique(fields: [patId, ownerId], name: "PatIdOwnerId")
 }
 
 model ProjTable {
-  projId      String @id
-  org         String?
-  project     String?
-  query       String?
-  url         String?
-  patId       String?
-  queryName   String?
-  ownerId     String
+  projId        String    @id
+  org           String?
+  project       String?
+  query         String?
+  url           String?
+  patId         PatTable? @relation(fields: [patTablePatId], references: [patId])
+  queryName     String?
+  ownerId       String
+  patTablePatId String?
+
+  @@unique(fields: [projId, ownerId], name: "ProjIdOwnerId")
 }
