@@ -31,14 +31,14 @@ export const authOptions: NextAuthOptions ={
       ],
       callbacks: {
         async session({session, token, user}) {
-          session = {
+          const localSession =  {
               ...session,
               user: {
                   id: user.id,
                   ...session.user
               }
           }
-          return session
+          return localSession
         }
       }
   }
