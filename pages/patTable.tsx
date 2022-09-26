@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react-hooks/rules-of-hooks */
 import React, { FC, useCallback, useMemo, useState } from 'react';
 import MaterialReactTable, { MaterialReactTableProps, MRT_Cell, MRT_ColumnDef, MRT_Row } from 'material-react-table';
 import {
@@ -17,7 +19,7 @@ import { DateRangeTwoTone, Delete, Edit } from '@mui/icons-material';
 import styles from '../styles/Home.module.css';
 import Head from 'next/head'
 import Image from 'next/image'
-import { PrismaClient, PatTable, Prisma } from '@prisma/client';
+import { PrismaClient,  Prisma } from '@prisma/client';
 import { unstable_getServerSession } from "next-auth/next"
 import { authOptions } from "./api/auth/[...nextauth]"
 import type { GetServerSidePropsContext } from "next"
@@ -25,39 +27,49 @@ import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import dayjs, { Dayjs } from 'dayjs';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import { log } from 'console';
+import { IExtSession, IPat } from '../components/types';
 
 const prisma = new PrismaClient();
 
-type Pat = {
-    patId: string,
-    pat: string,
-    dateExp: string,
-    ownerId: string,
-    description: string
+type serverRet = {
+    session: IExtSession | null;
+    initialPatTable?: any | null;
 }
+
 
 export async function getServerSideProps(context: GetServerSidePropsContext) { 
     
-    const session = await unstable_getServerSession(
+    const extSession: IExtSession | null = await unstable_getServerSession(
         context.req,
         context.res,
         authOptions
       );
-    const pats: PatTable[] = await prisma.patTable.findMany({
-        where: {
-            ownerId: {
-                equals: session?.user?.id,
+
+    
+    let pats: IPat[] = [];
+    
+    if (extSession?.user?.id) {
+        pats = await prisma.patTable.findMany({
+            where: {
+                ownerId: {
+                    equals: extSession?.user?.id,
+                }
             }
-        }
+        });
+    }
+    pats.map((pat) => {
+        pat.dateExp = dayjs(pat.dateExp).format('YYYY-MM-DD').toString();
     });
-    return {
-        props: {
-            session: session,
-            initialPatTable: JSON.parse(JSON.stringify(pats))
-        }
+    const ret:serverRet = {
+        session: extSession,
+        initialPatTable: pats
     };
-}
+
+    return {
+        props: ret
+    }
+};
+
 
 async function savePats(pat: Prisma.PatTableCreateInput) {
     const responce = await fetch('/api/patTable', {
@@ -99,16 +111,25 @@ async function deletePats(pat: Prisma.PatTableCreateInput) {
 }
 
 
-function PatTable({ session, initialPatTable }) {
+function PatTable(ret: serverRet) {
+
+    const extSession: IExtSession | null = ret.session;
 
     const [createModalOpen, setCreateModalOpen] = useState(false);
-    const [tableData, setTableData] = useState<PatTable[]>(() => initialPatTable);
+    const [tableData, setTableData] = useState<IPat[]>(() => ret.initialPatTable);
     const [validationErrors, setValidationErrors] = useState<{
         [cellId: string]: string;
     }>({});
-    const ownerId = session?.user?.id;
-
-    const handleCreateNewRow = async (values) => {
+    const ownerId = extSession?.user?.id;
+    
+    if (!ownerId) {
+        return (
+            <div>
+                <h1>Not signed in</h1>
+            </div>
+        );
+    }
+    const handleCreateNewRow = async (values: any) => {
         values.ownerId = ownerId;
         tableData.push(values);
         setTableData([...tableData]);
@@ -119,23 +140,26 @@ function PatTable({ session, initialPatTable }) {
         }
     };
 
-    const handleSaveRowEdits: MaterialReactTableProps<Pat>['onEditingRowSave'] = async ({ exitEditingMode, row, values }) => {
+    const handleSaveRowEdits: MaterialReactTableProps<IPat>['onEditingRowSave'] = async ({ exitEditingMode, row, values }) => {
         if (validationErrors && !Object.keys(validationErrors).length) {
-            values.ownerId = ownerId;
-            tableData[row.index] = values;
+            const savedRow: Prisma.PatTableCreateInput = values as Prisma.PatTableCreateInput;
+            savedRow.ownerId = ownerId;
+            savedRow.dateExp = dayjs(savedRow.dateExp).format('YYYY-MM-DD').toString();
+
+            tableData[row.index] = savedRow;
             // send/receive api updates here, then refetch or update local table data for re-render
             setTableData([...tableData]);
             exitEditingMode(); // required to exit editing mode and close modal
             try {
-                await updatePats(values)
+                await updatePats(savedRow)
             } catch (err) {
                 console.log(err);
             }
         }
     };
 
-    const handleDeleteRow = useCallback(async (row: MRT_Row<Pat>) => {
-        const delPat = row.original;
+    const handleDeleteRow = useCallback(async (row: MRT_Row<IPat>) => {
+        const delPat:Prisma.PatTableCreateInput = row.original as Prisma.PatTableCreateInput;
         if (!confirm(`Are you sure you want to delete ${delPat.patId}`)) {
             return;
         }
@@ -150,7 +174,7 @@ function PatTable({ session, initialPatTable }) {
 
     }, [tableData],);
 
-    const getCommonEditTextFieldProps = useCallback((cell: MRT_Cell<Pat>,): MRT_ColumnDef<Pat>['muiTableBodyCellEditTextFieldProps'] => {
+    const getCommonEditTextFieldProps = useCallback((cell: MRT_Cell<IPat>,): MRT_ColumnDef<IPat>['muiTableBodyCellEditTextFieldProps'] => {
         return {
             error: !!validationErrors[cell.id],
             helperText: validationErrors[cell.id],
@@ -173,15 +197,27 @@ function PatTable({ session, initialPatTable }) {
         };
     }, [validationErrors],);
 
-    const columns = useMemo<MRT_ColumnDef<Pat>[]>(() => [
+    const columns = useMemo<MRT_ColumnDef<IPat>[]>(() => [
         {
             accessorKey: 'patId', // access nested data with dot notation
             header: 'Pat Id',
             enableEditing: false,
-            muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-                ...getCommonEditTextFieldProps(cell),
-            }),
-            validate: rowData => rowData.name !== '',
+            muiTableBodyCellEditTextFieldProps: {
+                error: !!validationErrors.patId, //highlight mui text field red error color
+                helperText: validationErrors.patId, //show error message in helper text.
+                required: true,
+                type: 'string',
+                onChange: (event) => {
+                  const value = event.target.value;
+                  //validation logic
+                  if (!value) {
+                    setValidationErrors((prev) => ({ ...prev, patId: 'ParId is required' }));
+                  } else {
+                    delete validationErrors.patId;
+                    setValidationErrors({ ...validationErrors });
+                  }
+                },
+            },
         },
         {
             accessorKey: 'description',
@@ -212,14 +248,6 @@ function PatTable({ session, initialPatTable }) {
             )
         }, 
     ], [getCommonEditTextFieldProps],);
-
-    if (!session || !session.user) {
-        return (
-            <div>
-                <h1>Not signed in</h1>
-            </div>
-        );
-    }
 
     //const [pats, setPats] = useState(initialPatTable);
     return (
@@ -285,9 +313,9 @@ function PatTable({ session, initialPatTable }) {
 }
 
 export const CreateNewPatModal: FC<{
-    columns: MRT_ColumnDef<Pat>[];
+    columns: MRT_ColumnDef<IPat>[];
     onClose: () => void;
-    onSubmit: (values: Pat) => void;
+    onSubmit: (values: IPat) => void;
     open: boolean;
     }> = ({ open, columns, onClose, onSubmit }) => {
     const [values, setValues] = useState<any>(() =>

@@ -2,6 +2,7 @@ import NextAuth, { NextAuthOptions } from "next-auth"
 import GithubProvider from "next-auth/providers/github"
 import EmailProvider from "next-auth/providers/email"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
+import { IExtSession } from "../../../components/types"
 
 import { PrismaClient } from "@prisma/client";
 
@@ -31,13 +32,14 @@ export const authOptions: NextAuthOptions ={
       ],
       callbacks: {
         async session({session, token, user}) {
-          const localSession =  {
+          const localSession:IExtSession =  {
               ...session,
               user: {
                   id: user.id,
                   ...session.user
               }
           }
+          session = localSession
           return localSession
         }
       }
