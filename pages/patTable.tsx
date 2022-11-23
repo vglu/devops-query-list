@@ -19,7 +19,7 @@ import { DateRangeTwoTone, Delete, Edit } from '@mui/icons-material';
 import styles from '../styles/Home.module.css';
 import Head from 'next/head'
 import Image from 'next/image'
-import { PrismaClient,  Prisma } from '@prisma/client';
+//import { PrismaClient, Prisma } from '@prisma/client';
 import { unstable_getServerSession } from "next-auth/next"
 import { authOptions } from "./api/auth/[...nextauth]"
 import type { GetServerSidePropsContext } from "next"
@@ -28,8 +28,11 @@ import dayjs, { Dayjs } from 'dayjs';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { IExtSession, IPat } from '../components/types';
+import prisma from '../components/client';
 
-const prisma = new PrismaClient();
+//const prisma = new PrismaClient({
+//    log: ['query', 'info', 'warn', 'error'],
+//  });
 
 type serverRet = {
     session: IExtSession | null;
@@ -120,7 +123,16 @@ function PatTable(ret: serverRet) {
     const [validationErrors, setValidationErrors] = useState<{
         [cellId: string]: string;
     }>({});
+
     const ownerId = extSession?.user?.id;
+
+    if (!ownerId) {
+        return (
+            <div>
+                <h1>Not signed in</h1>
+            </div>
+        );
+    }
     
     if (!ownerId) {
         return (
