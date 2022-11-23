@@ -19,7 +19,7 @@ import { DateRangeTwoTone, Delete, Edit } from '@mui/icons-material';
 import styles from '../styles/Home.module.css';
 import Head from 'next/head'
 import Image from 'next/image'
-import { PrismaClient, Prisma } from '@prisma/client';
+//import { PrismaClient, Prisma } from '@prisma/client';
 import { unstable_getServerSession } from "next-auth/next"
 import { authOptions } from "./api/auth/[...nextauth]"
 import type { GetServerSidePropsContext } from "next"
@@ -29,8 +29,11 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import Autocomplete from '@mui/material/Autocomplete';
 import { IExtSession, IPat, IProj } from '../components/types';
+import prisma from '../components/client';
 
-const prisma = new PrismaClient();
+//const prisma = new PrismaClient({
+//    log: ['query', 'info', 'warn', 'error'],
+//  })
 
 type serverRet = {
     session: IExtSession | null;
@@ -379,22 +382,24 @@ export const CreateNewProjModal: FC<{
                         >
                             {columns.map((column) => {
                                 if (column.accessorKey === 'patTablePatId') {
-                                    return <Autocomplete
-                                        key={column.accessorKey}
-                                        value={pat}
-                                        onChange={(event: any, newValue: string | null) => {
-                                            setValues({ ...values, [event.target.name]: event.target.value })
-                                            setPat(event.target.value);
-                                        }}
-                                        inputValue={inputPatValue}
-                                        onInputChange={(event, newInputPatValue) => {
-                                            setInputPatValue(newInputPatValue);
-                                        }}
-                                        id="controllable-states-demo"
-                                        options={patListVar}
-                                        sx={{ width: 300 }}
-                                        renderInput={(params) => <TextField {...params} label={column.header} />}
-                                    />
+                                   return <Autocomplete
+                                    key={column.accessorKey}
+                                    options={patListVar}
+                                    renderInput={(params) => <TextField {...params} label={column.header} />}
+                                //    value={pat}
+                                    onChange={(event: any, newValue: string | null) => {
+                                        setValues({ ...values, ['patTablePatId']: newValue })
+                                        setPat(newValue);
+                                    }}
+                                //         inputValue={inputPatValue}
+                                //         // onInputChange={(event, newInputPatValue) => {
+                                //         //     setInputPatValue(newInputPatValue);
+                                //         // }}
+                                //         id="controllable-states-demo"
+                                //         sx={{ width: 300 }}
+                                        
+                                //         //isOptionEqualToValue={(option, value) => option === value}
+                                />
                                 }
 
                                 return <TextField

@@ -3,10 +3,11 @@ import GithubProvider from "next-auth/providers/github"
 import EmailProvider from "next-auth/providers/email"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import { IExtSession } from "../../../components/types"
+import prisma from '../../../components/client';
 
-import { PrismaClient } from "@prisma/client";
+//import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient();
+//const prisma = new PrismaClient();
 
 export const authOptions: NextAuthOptions ={
     secret: process.env.SECRET,
