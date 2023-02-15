@@ -10,16 +10,13 @@ import {
     DialogContent,
     DialogTitle,
     IconButton,
-    MenuItem,
     Stack,
     TextField,
     Tooltip
 } from '@mui/material';
-import { DateRangeTwoTone, Delete, Edit } from '@mui/icons-material';
+import { Delete, Edit } from '@mui/icons-material';
 import styles from '../styles/Home.module.css';
 import Head from 'next/head'
-import Image from 'next/image'
-//import { PrismaClient, Prisma } from '@prisma/client';
 import { unstable_getServerSession } from "next-auth/next"
 import { authOptions } from "./api/auth/[...nextauth]"
 import type { GetServerSidePropsContext } from "next"
@@ -29,10 +26,6 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { IExtSession, IPat } from '../components/types';
 import prisma from '../components/client';
-
-//const prisma = new PrismaClient({
-//    log: ['query', 'info', 'warn', 'error'],
-//  });
 
 type serverRet = {
     session: IExtSession | null;
@@ -134,13 +127,6 @@ function PatTable(ret: serverRet) {
         );
     }
     
-    if (!ownerId) {
-        return (
-            <div>
-                <h1>Not signed in</h1>
-            </div>
-        );
-    }
     const handleCreateNewRow = async (values: any) => {
         values.ownerId = ownerId;
         tableData.push(values);

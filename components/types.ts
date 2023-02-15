@@ -48,19 +48,25 @@ export interface IExtSession extends Session {
 
 // This is the type of the project item object.  
 export interface IProjItem {
-    project: ProjectId;             // User Friendly ProjectId
-    queryName: QueryName;           // User Friendly QueryName
-    workItemType: string | null;    // Work Item Type
-    state: string | null;           // State of the work item
-    assignToName: string | null;
-    assignToEmail: string | null;
-    bodyId: string | null;
-    title: string | null;
-    priority: string | null;
-    severity: string | null;
-    topic: string | null;
-    lastComment: string | null;
-    url: string | null;
+    project?: ProjectId;             // User Friendly ProjectId
+    queryName?: QueryName;           // User Friendly QueryName
+    workItemType?: string | null;    // Work Item Type
+    state?: string | null;           // State of the work item
+    assignToName?: string | null;
+    assignToEmail?: string | null;
+    bodyId?: string | null;
+    title?: string | null;
+    priority?: string | null;
+    severity?: string | null;
+    topic?: string | null;
+    lastComment?: string | null;
+    url?: string | null;
+}
+
+// work items short information
+export interface IWorkItemShort {
+    id?: string | null;
+    url?: string | null;
 }
 
   

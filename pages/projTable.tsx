@@ -15,25 +15,18 @@ import {
     TextField,
     Tooltip
 } from '@mui/material';
-import { DateRangeTwoTone, Delete, Edit } from '@mui/icons-material';
+import { Delete, Edit } from '@mui/icons-material';
 import styles from '../styles/Home.module.css';
 import Head from 'next/head'
-import Image from 'next/image'
-//import { PrismaClient, Prisma } from '@prisma/client';
 import { unstable_getServerSession } from "next-auth/next"
 import { authOptions } from "./api/auth/[...nextauth]"
 import type { GetServerSidePropsContext } from "next"
-import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import dayjs, { Dayjs } from 'dayjs';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import Autocomplete from '@mui/material/Autocomplete';
 import { IExtSession, IPat, IProj } from '../components/types';
 import prisma from '../components/client';
-
-//const prisma = new PrismaClient({
-//    log: ['query', 'info', 'warn', 'error'],
-//  })
 
 type serverRet = {
     session: IExtSession | null;
@@ -49,7 +42,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         authOptions
       );
 
-    //const extUser: ExtUser = JSON.parse(JSON.stringify(session?.user));
+    
     let projs: IProj[] = [];
     let patsLocal: IPat[] = [];
 
@@ -277,8 +270,8 @@ function ProjTable(ret: serverRet) {
     return (
         <div className={styles.container}>
             <Head>
-                <title>Setup personal access token</title>
-                <meta name="description" content="Setup projects property" />
+                <title>Setup property for projects</title>
+                <meta name="description" content="Setup property for projects" />
                 <link rel="icon" href="/favicon.ico" />
             </Head>
 
