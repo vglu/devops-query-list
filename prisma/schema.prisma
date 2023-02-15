@@ -84,20 +84,20 @@ model ProjTable {
 
 model ProjItem {
   id            String @id @default(cuid())
-  project       String
-  queryName     String
-  workItemType  String
-  state         String
-  assignToName  String
-  assignToEmail String
-  bodyId        String
-  title         String
-  priority      String
-  severity      String
-  topic         String
-  lastComment   String
-  url           String
-  ownerId       String
+  project       String?
+  queryName     String?
+  workItemType  String?
+  state         String?
+  assignToName  String?
+  assignToEmail String?
+  bodyId        String?
+  title         String?
+  priority      String?
+  severity      String?
+  topic         String?
+  lastComment   String?
+  url           String?
+  ownerId       String?
 
   @@index([ownerId])
 }

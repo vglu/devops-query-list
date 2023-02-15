@@ -35,9 +35,9 @@ async function getTableData(ownerId: string) {
 
   try 
   {
-    const responce = await fetch('/api/projTable', {
-      method: 'GET',
-      headers: {ownerId: ownerId},
+    const responce = await fetch('/api/projItemTable', {
+      method: 'POST',
+      body: JSON.stringify({ ownerId: ownerId }),
     });
   
     if (!responce.ok) {
@@ -57,7 +57,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       authOptions
     );
 
-  //const extUser: ExtUser = JSON.parse(JSON.stringify(session?.user));
+  
   let pItems: IProjItem[] = [];
   
   if (extSession?.user?.id) {
@@ -90,10 +90,18 @@ function IndexPage(ret: serverRet) {
 
   //const ownerId = extSession?.user?.id;
 
-  async function refreshData(ownerId: string) {
-    getTableData(ownerId).then((data) => {
-      setTableData(data);
-    });
+  async function refreshData(ownerIdLocal: string) {
+
+    try
+    {
+      console.log("refreshData");
+      getTableData(ownerIdLocal);
+    } catch (err) {
+      console.log(err);
+    }
+    //.then((data) => {
+    //  setTableData(data);
+    //});
   }
 
   
