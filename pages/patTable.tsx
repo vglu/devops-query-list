@@ -17,7 +17,7 @@ import {
 import { Delete, Edit } from '@mui/icons-material';
 import styles from '../styles/Home.module.css';
 import Head from 'next/head'
-import { unstable_getServerSession } from "next-auth/next"
+import { getServerSession } from "next-auth/next"
 import { authOptions } from "./api/auth/[...nextauth]"
 import type { GetServerSidePropsContext } from "next"
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
@@ -26,6 +26,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { IExtSession, IPat } from '../components/types';
 import prisma from '../components/client';
+import { Prisma } from '@prisma/client';
 
 type serverRet = {
     session: IExtSession | null;
@@ -35,7 +36,7 @@ type serverRet = {
 
 export async function getServerSideProps(context: GetServerSidePropsContext) { 
     
-    const extSession: IExtSession | null = await unstable_getServerSession(
+    const extSession: IExtSession | null = await getServerSession(
         context.req,
         context.res,
         authOptions
@@ -177,8 +178,8 @@ function PatTable(ret: serverRet) {
             error: !!validationErrors[cell.id],
             helperText: validationErrors[cell.id],
             onBlur: (event) => {
-                console.log(cell);
-                console.log(event);
+                //console.log(cell);
+                //console.log(event);
                 const isValid = cell.column.id === 'pat' ? validateRequired(event.target.value): true;
                 if (!isValid) { // set validation error for cell if invalid
                     setValidationErrors({
@@ -387,8 +388,8 @@ export const CreateNewPatModal: FC<{
   };
   
   const validateRequired = (value: string) => {
-    console.log(value);
-    console.log("pat");
+    //console.log(value);
+    //console.log("pat");
     return !!value.length;
 }
 

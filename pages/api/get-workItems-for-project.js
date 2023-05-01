@@ -2,8 +2,8 @@ const request = require('request');
 
 export default async function handler(req, res) {
 
-  console.log("get-workItems-for-project API  *************************************");
-  console.log(req.body);
+  //console.log("get-workItems-for-project API  *************************************");
+  //console.log(req.body);
 
   const urlLocal = req.body.url;
   const org = req.body.org;
@@ -24,10 +24,10 @@ export default async function handler(req, res) {
   url += '?$expand=clauses&api-version=6.0';
   url += '&Authorization=Basic BASE64PATSTRING';
 
-  console.log(url);
+  //console.log(url);
 
   const auth = 'Basic ' + btoa(':' + pat);
-  console.log(auth);
+  //console.log(auth);
 
   var options = {
     'method': 'GET',

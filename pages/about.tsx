@@ -18,6 +18,7 @@ const About = () => {
           About
         </h1>
         <br />
+        
       </main>
       <br />
       {JSON.stringify(session)}

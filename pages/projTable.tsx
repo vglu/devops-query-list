@@ -18,7 +18,7 @@ import {
 import { Delete, Edit } from '@mui/icons-material';
 import styles from '../styles/Home.module.css';
 import Head from 'next/head'
-import { unstable_getServerSession } from "next-auth/next"
+import { getServerSession } from "next-auth/next"
 import { authOptions } from "./api/auth/[...nextauth]"
 import type { GetServerSidePropsContext } from "next"
 import dayjs, { Dayjs } from 'dayjs';
@@ -27,6 +27,10 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import Autocomplete from '@mui/material/Autocomplete';
 import { IExtSession, IPat, IProj } from '../components/types';
 import prisma from '../components/client';
+import { Prisma } from '@prisma/client';
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
+
 
 type serverRet = {
     session: IExtSession | null;
@@ -36,7 +40,7 @@ type serverRet = {
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
 
-    const extSession: IExtSession | null = await unstable_getServerSession(
+    const extSession: IExtSession | null = await getServerSession(
         context.req,
         context.res,
         authOptions
@@ -150,6 +154,7 @@ function ProjTable(ret: serverRet) {
         if (validationErrors && !Object.keys(validationErrors).length) {
             const savedRow: Prisma.ProjTableCreateInput = values as Prisma.ProjTableCreateInput;
             savedRow.ownerId = ownerId;
+            savedRow.disabled = (savedRow.disabled === 'true') ? true : (savedRow.disabled === 'false') ? false : true;
             tableData[row.index] = savedRow as IProj;
             // send/receive api updates here, then refetch or update local table data for re-render
             setTableData([...tableData]);
@@ -236,7 +241,7 @@ function ProjTable(ret: serverRet) {
         {
             accessorKey: 'url',
             header: 'URL to Project',
-            type: 'url',
+            
             muiTableBodyCellEditTextFieldProps: ({ cell }) => (
                 {
                     ...getCommonEditTextFieldProps(cell)
@@ -259,6 +264,18 @@ function ProjTable(ret: serverRet) {
         {
             accessorKey: 'queryName',
             header: 'queryName',
+            muiTableBodyCellEditTextFieldProps: ({ cell }) => (
+                {
+                    ...getCommonEditTextFieldProps(cell)
+                }
+            )
+        },
+        {
+            accessorKey: 'disabled',
+            header: 'Disabled',
+            type: 'boolean',
+            Cell: ({ cell  }) => (
+                <Checkbox checked={cell.getValue()? true: false} />),
             muiTableBodyCellEditTextFieldProps: ({ cell }) => (
                 {
                     ...getCommonEditTextFieldProps(cell)
@@ -358,6 +375,7 @@ export const CreateNewProjModal: FC<{
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setPat(event.target.value);
     };
+    const [enabled, setEnabled] = React.useState<boolean>(false);
 
 
     return (
@@ -379,22 +397,25 @@ export const CreateNewProjModal: FC<{
                                     key={column.accessorKey}
                                     options={patListVar}
                                     renderInput={(params) => <TextField {...params} label={column.header} />}
-                                //    value={pat}
                                     onChange={(event: any, newValue: string | null) => {
                                         setValues({ ...values, ['patTablePatId']: newValue })
                                         setPat(newValue);
                                     }}
-                                //         inputValue={inputPatValue}
-                                //         // onInputChange={(event, newInputPatValue) => {
-                                //         //     setInputPatValue(newInputPatValue);
-                                //         // }}
-                                //         id="controllable-states-demo"
-                                //         sx={{ width: 300 }}
-                                        
-                                //         //isOptionEqualToValue={(option, value) => option === value}
                                 />
                                 }
-
+                                if (column.accessorKey === 'disabled') { // checked={cell.getValue()? true: false}
+                                    return  <FormControlLabel 
+                                    key={column.accessorKey}
+                                    renderInput={(params) => <Checkbox {...params} label={column.header} />}
+                                    control={<Checkbox checked={enabled} />} label="Disabled" 
+                                    labelPlacement="start"
+                                    onChange={(event: any, newValue: boolean | null) => {
+                                        setValues({ ...values, ['disabled']: newValue })
+                                        setEnabled(newValue? true: false);
+                                    }}                                            
+                                    />
+                                 
+                                 }
                                 return <TextField
                                     key={column.accessorKey}
                                     label={column.header}

@@ -2,9 +2,10 @@
 import { signIn, signOut, useSession } from "next-auth/react";
 import { IExtSession, IPat, IProj, IProjItem } from '../components/types';
 import type { GetServerSidePropsContext } from "next";
-import { unstable_getServerSession } from "next-auth/next";
+import { getServerSession } from "next-auth/next";
 import { authOptions } from "./api/auth/[...nextauth]";
-import React, { FC, useCallback, useMemo, useState } from 'react';
+
+import React, { FC, useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import MaterialReactTable, { MaterialReactTableProps, MRT_Cell, MRT_ColumnDef, MRT_Row } from 'material-react-table';
 import Link from 'next/link';
 import styles from '../styles/Home.module.css';
@@ -20,30 +21,35 @@ import {
   MenuItem,
   Stack,
   TextField,
-  Tooltip
+  Tooltip,
+  Alert,
+  Typography 
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import { getProjItemData } from './api/projItemTable'
-
+import parse from 'html-react-parser';
 
 type serverRet = {
   session: IExtSession | null;
   initialItemProjTable?: any | null;
 }
 
-async function getTableData(ownerId: string) {
-
+async function getTableData(ownerId: string): Promise<IProjItem[]> {
+  console.log('ownerId',ownerId)
   try 
   {
     const responce = await fetch('/api/projItemTable', {
-      method: 'POST',
-      body: JSON.stringify({ ownerId: ownerId }),
+      method: 'GET',
     });
-  
+    
+    
     if (!responce.ok) {
       throw new Error(responce.statusText);
     }
-    return await responce.json();
+    const ret = await responce.json();
+    console.log('ret',ret)
+    return ret;
+
   } catch (err) {
     console.log(err);
   }
@@ -51,7 +57,7 @@ async function getTableData(ownerId: string) {
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
 
-  const extSession: IExtSession | null = await unstable_getServerSession(
+  const extSession: IExtSession | null = await getServerSession(
       context.req,
       context.res,
       authOptions
@@ -78,9 +84,10 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 }
 
 function IndexPage(ret: serverRet) {
-
+  //console.log('ret',ret)
   const extSession: IExtSession | null = ret.session;
-
+  
+  const [hideLoad,setHideLoad]=useState(false)
   const [tableData, setTableData] = useState<IProjItem[]>(() => ret.initialItemProjTable);
   const [validationErrors, setValidationErrors] = useState<{
       [cellId: string]: string;
@@ -90,12 +97,42 @@ function IndexPage(ret: serverRet) {
 
   //const ownerId = extSession?.user?.id;
 
-  async function refreshData(ownerIdLocal: string) {
+  function refreshData(ownerIdLocal: string) {
 
     try
     {
       console.log("refreshData");
-      getTableData(ownerIdLocal);
+      setHideLoad(true);
+
+      getTableData(ownerIdLocal).then((data) => {
+        console.log("data",data);
+        console.log("data type",typeof data);
+        setTableData(data);
+        setHideLoad(false);
+  
+      }, (err) => {console.log(err);})
+
+      
+      
+
+      //console.log('getting data')
+      // setTimeout(async ()=>{
+      //   const some= await fetch('/api/hello', {
+      //     method: 'POST',
+      //     body: JSON.stringify({ ownerId: ownerId }),
+      //   }).then(result=>{return result.json()});
+        
+      //   //console.log('refresh show items')
+      //   //console.log(some.items)
+
+      //   setTableData(some.items)
+      //   setHideLoad(false)
+      
+      
+      
+      // },10000)
+      
+      
     } catch (err) {
       console.log(err);
     }
@@ -157,6 +194,25 @@ function IndexPage(ret: serverRet) {
           header: 'Severity',
           size: 80, //medium column
       },
+      {
+        accessorKey: 'changedDate', 
+        header: 'Changed Date',
+        size: 80, //medium column
+    },
+    {
+      accessorKey: 'changedBy', 
+      header: 'Changed By',
+      size: 80, //medium column
+    },
+    {
+      accessorKey: 'inactiveDays', 
+      header: 'Inactive Days',
+      align: 'right',
+      muiTableBodyCellProps: {
+        align: 'right',
+      },
+      size: 80, //medium column
+    },
     ], []
   );
 
@@ -168,6 +224,7 @@ if (!ownerId) {
       </div>
   );
 }
+
 
 return (
   <div className={styles.container}>
@@ -187,21 +244,48 @@ return (
       columns={columns}
       data={tableData}
       enableRowSelection //enable some features
+      enableGrouping
       enableColumnOrdering
       enableColumnResizing 
       columnResizeMode="onChange"
-      initialState={{ density: 'compact' }}
+      initialState={{ density: 'compact',
+      pagination: {
+        pageSize: 20,
+        pageIndex: 0
+      }}}
+      state={{showProgressBars:hideLoad}}
+      renderDetailPanel={({ row }) => (
+        <Box
+          sx={{
+            display: 'grid',
+            margin: '10px 70px 20px 0px',
+            gridTemplateColumns: '1fr 1fr',
+            width: '100%',
+            gap: '10px',
+          }}
+        >
+          <Typography backgroundColor="#e6f7ff"><b>Description:</b> {row.original.description}</Typography>
+          <Typography backgroundColor="#e6ffff"><b>Last message:</b> {row.original.history}</Typography>
+        </Box>
+      )}      
       renderTopToolbarCustomActions={() => (
-        <Button 
+        <Stack direction='row'><Button 
             onClick={() => {
-              alert('clicked');
-              refreshData(ownerId)}
-            }
+              try
+              {
+                refreshData(ownerId);
+              }              
+              catch (err) {
+                console.log(err);
+              }
+            }}
             variant="contained"
             endIcon={<SendIcon />}
         >
             Refresh
         </Button>
+        
+        </Stack> 
     )}
     />
   </div>
