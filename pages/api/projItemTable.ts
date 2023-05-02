@@ -210,7 +210,7 @@ async function getWorkItemDetails(url: string, auth: string) {
     // define constant with current datetime
     const currDateTime = new Date();
     const dateStr = dateFormat(date, "yyyy.mm.dd HH:MM"); 
-    const diffTime = Math.abs(currDateTime - date);
+    const diffTime = Math.abs(currDateTime.getTime() - date.getTime());
     const inactiveDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
 
     const itemDetails: ProjItem = {
@@ -243,6 +243,25 @@ async function getWorkItemDetails(url: string, auth: string) {
     console.log("error: ", error);
     const itemDetails: ProjItem = {
       bodyId: "",
+      id: '',
+      project: null,
+      queryName: null,
+      workItemType: null,
+      state: null,
+      assignToName: null,
+      assignToEmail: null,
+      title: null,
+      priority: null,
+      severity: null,
+      topic: null,
+      lastComment: null,
+      url: null,
+      ownerId: null,
+      description: null,
+      history: null,
+      changedDate: null,
+      changedBy: null,
+      inactiveDays: null
     }  
     return itemDetails;
   }
