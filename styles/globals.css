@@ -26,3 +26,17 @@ a {
     background: black;
   }
 }
+
+
+.roman {
+ list-style-type: lower-roman;
+}
+.square {
+ list-style-type: square;
+ margin-left: -2em;
+}
+.circle {
+ list-style-type: circle;
+ margin-left: -2em;
+}
+

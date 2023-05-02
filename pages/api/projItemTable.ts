@@ -37,7 +37,7 @@ export default async function handler(
 
       await fillProjItemData(ownerId);
       const tableData = await getProjItemData(ownerId);
-      console.log("tableData: ", tableData.length);
+      console.log("tableData: ", tableData?.length? tableData.length: '');
       res.status(200).json(tableData);
 
     } catch (error) {
