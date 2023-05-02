@@ -50,7 +50,7 @@ export default async function handler(
       res,
       authOptions
     );
-    const ownerId  = extSession?.user?.id;
+    const ownerId  = String(extSession?.user?.id);
     const ret = await refreshItems(ownerId);
     console.log("ret: ", ret);
     
