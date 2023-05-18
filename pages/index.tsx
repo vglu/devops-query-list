@@ -1,11 +1,11 @@
 
 import { signIn, signOut, useSession } from "next-auth/react";
-import { IExtSession, IPat, IProj, IProjItem } from '../components/types';
+import { IExtSession, IProjItem } from '../components/types';
 import type { GetServerSidePropsContext } from "next";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "./api/auth/[...nextauth]";
 
-import React, { FC, useCallback, useEffect, useMemo, useState, useRef } from 'react';
+import React, { FC, useCallback, useMemo, useState, useRef } from 'react';
 import MaterialReactTable, { MaterialReactTableProps, MRT_Cell, MRT_ColumnDef, MRT_Row } from 'material-react-table';
 import Link from 'next/link';
 import styles from '../styles/Home.module.css';
@@ -87,7 +87,7 @@ function IndexPage(ret: serverRet) {
   //console.log('ret',ret)
   const extSession: IExtSession | null = ret.session;
   
-  const [hideLoad,setHideLoad]=useState(false)
+  const [showProgressBars,setShowProgressBars]=useState(false)
   const [tableData, setTableData] = useState<IProjItem[]>(() => ret.initialItemProjTable);
   const [validationErrors, setValidationErrors] = useState<{
       [cellId: string]: string;
@@ -95,50 +95,22 @@ function IndexPage(ret: serverRet) {
 
   const [ownerId, setOwnerId] = useState(() => extSession?.user?.id);
 
-  //const ownerId = extSession?.user?.id;
+//const ownerId = extSession?.user?.id;
 
-  function refreshData(ownerIdLocal: string) {
+  async function refreshData(ownerIdLocal: string) {
 
     try
     {
       console.log("refreshData");
-      setHideLoad(true);
+      setShowProgressBars(true);
 
-      getTableData(ownerIdLocal).then((data) => {
-        console.log("data",data);
-        console.log("data type",typeof data);
-        setTableData(data);
-        setHideLoad(false);
-  
-      }, (err) => {console.log(err);})
-
-      
+      await getTableData(ownerIdLocal);
+      alert('Refresh page manually, please (temp issue)');
       
 
-      //console.log('getting data')
-      // setTimeout(async ()=>{
-      //   const some= await fetch('/api/hello', {
-      //     method: 'POST',
-      //     body: JSON.stringify({ ownerId: ownerId }),
-      //   }).then(result=>{return result.json()});
-        
-      //   //console.log('refresh show items')
-      //   //console.log(some.items)
-
-      //   setTableData(some.items)
-      //   setHideLoad(false)
-      
-      
-      
-      // },10000)
-      
-      
     } catch (err) {
       console.log(err);
     }
-    //.then((data) => {
-    //  setTableData(data);
-    //});
   }
 
   
@@ -253,7 +225,7 @@ return (
         pageSize: 20,
         pageIndex: 0
       }}}
-      state={{showProgressBars:hideLoad}}
+      state={{showProgressBars:showProgressBars}}
       renderDetailPanel={({ row }) => (
         <Box
           sx={{

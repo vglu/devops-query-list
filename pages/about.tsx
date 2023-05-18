@@ -28,7 +28,7 @@ const About = () => {
         <h2>PAT</h2>
         <p>We have Personal access token (PAT) to authenticate to ADO and we can query work items using ADO REST API.</p>
 
-        <p>How create personal access token: <a href="https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops">MS documantation</a></p>
+        <p>How create personal access token: <a href="https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops">MS documentation</a></p>
         <div>
           <h3>PAT listpage</h3>
           <Image src='/images/02.PATsetup.png' width={1881} height={597} />
@@ -55,7 +55,7 @@ const About = () => {
           <Image src='/images/03.Projectlist.png' width={1649} height={651} />
         </div>
         <ul>
-          <li>ProjtId - internal identifier of project</li>
+          <li>ProjId - internal identifier of project</li>
           <li>Organization, project name - we have 2 type of projects in ADO.
             <ul>
               <li>First type is https://dev.azure.com/[organisation]/[project name]/</li>
@@ -108,7 +108,7 @@ const About = () => {
           <Image src='/images/06.TablesProperty.png' width={1879} height={656} />
         </div>
 
-        <h2>Autontification</h2>
+        <h2>Authentication</h2>
         <div>We use next-auth to authenticate users.
           Now you can authenticate over custom email or over github account.
         </div>
@@ -117,7 +117,7 @@ const About = () => {
         <ul>
           <li>Refresh button: when you press refresh button it start update process but not show any changes in the main page. Workaround it is refresh page in browser.</li>
           <li>After create access token Expiration date field shows date and time. Workaround it is refresh page in browser.</li>
-          <li>Project disable field can accept only string vaule true and false. Workaround it is enter true or false manually.</li>
+          <li>Project disable field can accept only string value true and false. Workaround it is enter true or false manually.</li>
         </ul>
       </main>
       <br />

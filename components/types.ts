@@ -75,4 +75,11 @@ export interface IWorkItemShort {
     url?: string | null;
 }
 
+type TMessage = {
+    ownerId: string;
+    action: string;
+    message: string;
+    onoff: boolean;
+  };
+
   

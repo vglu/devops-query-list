@@ -8,6 +8,10 @@ import dateFormat from 'dateformat';
 import { getServerSession } from 'next-auth';
 import { authOptions } from "./auth/[...nextauth]"
 
+import {io} from "socket.io-client";
+
+let socket: any = null;
+
 export async function getProjItemData(ownerId: string | undefined) {
   try {
     const projItems = await prisma.projItem.findMany({
@@ -17,18 +21,17 @@ export async function getProjItemData(ownerId: string | undefined) {
         },
       }
   });
-  return projItems;
-} catch (error) {
-  console.log("error: ", error);      
-}
-
-  
+    return projItems;
+  } catch (error) {
+    console.log("error: ", error);      
+  }
 }
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+
   if (req.method === 'POST') {
     try {
       console.log("req.body: ", req.body);
@@ -37,7 +40,7 @@ export default async function handler(
 
       await fillProjItemData(ownerId);
       const tableData = await getProjItemData(ownerId);
-      console.log("tableData: ", tableData?.length? tableData.length: '');
+      //console.log("tableData: ", tableData?.length? tableData.length: '');
       res.status(200).json(tableData);
 
     } catch (error) {
@@ -50,6 +53,7 @@ export default async function handler(
       res,
       authOptions
     );
+
     const ownerId  = String(extSession?.user?.id);
     const ret = await refreshItems(ownerId);
     console.log("ret: ", ret);
@@ -57,7 +61,7 @@ export default async function handler(
     if (ret)
     {
       const tableData = await getProjItemData(ownerId);
-      console.log("tableData: ", tableData);
+      //console.log("tableData: ", tableData);
       res.status(200).json(tableData);
   
     }
@@ -81,7 +85,7 @@ async function refreshItems(ownerId: string) {
 export async function fillProjItemData(ownerId: string | undefined) {
   
   try {
-    console.log("fillProjItemData ownerId: ", ownerId);
+    //console.log("fillProjItemData ownerId: ", ownerId);
     
     const projects: ProjTable[] = await prisma.projTable.findMany({
       where: {
@@ -129,6 +133,7 @@ export async function fillProjItemData(ownerId: string | undefined) {
                 workItemDetails.url = proj.url + (proj.org ? '/' + proj.org : '') + '/' + proj.project + '/_workitems/edit/' + workItemDetails.bodyId; 
                 workItemDetails.lastComment = "TBD"; 
                 workItemDetails.ownerId = ownerId?ownerId:""; 
+                
                 //console.log("workItemDetails ", workItemDetails);
                 prisma.projItem.create({
                   data: workItemDetails
@@ -136,7 +141,7 @@ export async function fillProjItemData(ownerId: string | undefined) {
                 const some= await prisma.projItem.create({
                   data: workItemDetails
                 });
-                console.log('DEBUG 5______________________________',some);
+                //console.log('DEBUG 5______________________________',some);
               }
             });
           }
@@ -229,11 +234,11 @@ async function getWorkItemDetails(url: string, auth: string) {
       changedDate: dateStr,
       changedBy: fields["System.CreatedBy"]["displayName"] ? fields["System.CreatedBy"]["displayName"] : '',
       inactiveDays:inactiveDays ,
-      //id: '',
-      //project: null,
-      //queryName: null,
-      //lastComment: null,
-      //ownerId: null
+      // id: '',
+      // project: null,
+      // queryName: null,
+      // lastComment: null,
+      // ownerId: null
     }
     //console.log('INSIDE DEBUG 3_____________________________________________')
     //console.log(itemDetails)
