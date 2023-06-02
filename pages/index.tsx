@@ -27,7 +27,7 @@ import {
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import { getProjItemData } from './api/projItemTable'
-import parse from 'html-react-parser';
+
 
 type serverRet = {
   session: IExtSession | null;

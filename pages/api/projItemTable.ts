@@ -8,9 +8,6 @@ import dateFormat from 'dateformat';
 import { getServerSession } from 'next-auth';
 import { authOptions } from "./auth/[...nextauth]"
 
-import {io} from "socket.io-client";
-
-let socket: any = null;
 
 export async function getProjItemData(ownerId: string | undefined) {
   try {
@@ -184,6 +181,19 @@ async function getWorkItemsForProject(projectId: IProj, auth: string) {
       }});
   
     const data = await response.json();
+
+    if (data['innerException'] && data['message']) {
+      console.log("Project", projectId);
+      console.log("error: ", data['message']);
+      throw new Error(data['message']);
+    }
+
+    if (response.status !== 200) {
+      console.log("Project", projectId);
+      console.log("error: ", data);
+      throw new Error(data);
+    }
+    //console.log('DEBUG 2 r________',response.status);
     //console.log('DEBUG 2________',data.workItems);
     return data.workItems;
 

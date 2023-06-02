@@ -3,9 +3,11 @@ import { useSession } from "next-auth/react";
 import styles from '../styles/Home.module.css';
 import Head from 'next/head';
 import Image from 'next/image'
+import { IExtSession } from '../components/types';
 
 const About = () => {
   const { data: session, status } = useSession();
+  const sessionInfo = JSON.stringify(session?.user, null , 2);
   return (
     <div className={styles.container}>
       <Head>
@@ -119,9 +121,18 @@ const About = () => {
           <li>After create access token Expiration date field shows date and time. Workaround it is refresh page in browser.</li>
           <li>Project disable field can accept only string value true and false. Workaround it is enter true or false manually.</li>
         </ul>
+
+        <h2>Future plans</h2>
+        <ul>
+          <li>add more authentication providers google ...</li>
+          <li>add possibility to make replace one value to another. Example - on each project you can have different email or nick name. Main idea here it is has one standard list to comfortable group by, filtering and so on</li>
+          <li>update index page items on load page</li>
+          <li>mark somehow new lines (probably new field tick box and color line somehow)</li>
+          <li>remember state for table for each user. Best choice to do like in D365FO/CE where you can save several views and make one of them like default</li>
+        </ul>
       </main>
       <br />
-      <p>service info: {JSON.stringify(session)}</p>
+      <p className={styles.footer}>{sessionInfo}</p>
     </div>
   )
 }
