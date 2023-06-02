@@ -17,6 +17,18 @@ export default async function handler(
 
     switch (req.method) {
         case 'POST':
+            if (projData.disabled === 'true') {
+              projData.disabled = true;
+            } else if (projData.disabled === 'false') {
+              projData.disabled = false;
+            } else if (projData.disabled === false) {
+              projData.disabled = false;
+            } else if (projData.disabled === true) {
+              projData.disabled = true;
+            } else {
+              projData.disabled = true;
+            }
+
             ret = await prisma.projTable.create({
                 data: projData
             })
@@ -32,6 +44,7 @@ export default async function handler(
               })
           break;
         case 'PUT':
+          //projData.disabled = (projData.disabled === 'true') ? true : (projData.disabled === 'false') ? false : true;
             ret = await prisma.projTable.update({
               where: {
                 ProjIdOwnerId: {

@@ -17,6 +17,7 @@ export interface IProj {
     ownerId?: string | null;        // The owner of the project
     patTablePatId?: string | null;  
     PatTableCreateNestedOneWithoutProjTableInput?: string | null;
+    disabled?: boolean | null;      // Is the project disabled?
 }
 
 // This is the type of the personal access token object.
@@ -61,6 +62,11 @@ export interface IProjItem {
     topic?: string | null;
     lastComment?: string | null;
     url?: string | null;
+    description?: string | null;
+    history?: string | null;
+    changedDate?: string | null;
+    changedBy?: string | null;
+    inactiveDays?: number | null;
 }
 
 // work items short information
@@ -68,5 +74,12 @@ export interface IWorkItemShort {
     id?: string | null;
     url?: string | null;
 }
+
+type TMessage = {
+    ownerId: string;
+    action: string;
+    message: string;
+    onoff: boolean;
+  };
 
   

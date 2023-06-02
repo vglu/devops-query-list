@@ -8,8 +8,8 @@ export default async function handler(req, res) {
       const items = await callGetWorkItemsList(project);
       for (let workItem of items.value) {
         const item = await callGetWorkItem(workItem);
-        console.log("item ========>>>");
-        console.log(item);
+        //("item ========>>>");
+        //console.log(item);
         resp.push(item);
       }
     }
@@ -33,7 +33,7 @@ async function getProjectList() {
     const projects = await rp(url, options);
 
     const ret = JSON.parse(projects);
-    console.log(ret.projects);
+    //console.log(ret.projects);
     return ret.projects;
   } catch (error) {
     return console.error(error);
@@ -64,7 +64,7 @@ async function getWorkItemsList(project) {
     const response = await rp(url, options);
     //const value = response.body.value;
     const value = response;
-    console.log(value);
+    //console.log(value);
     return value;
   } catch (error) {
     return console.error(error);
@@ -93,7 +93,7 @@ async function getWorkItem(item) {
   try {
     const response = await rp(url, options);
     const value = response;
-    console.log(value);
+    //console.log(value);
     return value;
   } catch (error) {
     return console.error(error);

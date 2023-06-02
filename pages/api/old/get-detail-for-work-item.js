@@ -12,7 +12,7 @@ export default async function handler(req, res) {
   url += '?api-version=6.0';
   url += '&Authorization=Basic BASE64PATSTRING';
 
-  console.log(url);
+  //console.log(url);
 
 
   var options = {
