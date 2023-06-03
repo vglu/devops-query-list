@@ -148,7 +148,7 @@ function IndexPage(ret: serverRet) {
       {
           accessorKey: 'bodyId', 
           header: 'id',
-          Cell: ({ cell, row }) => (<Link href={row.original.url ? row.original.url : ""} passHref><a target="_blank">{row.original.bodyId}</a></Link>),
+          Cell: ({ cell, row }) => (<Link href={row.original.url ? row.original.url : ""} passHref target="_blank">{row.original.bodyId}</Link>),
           size: 50, //medium column
       },
       {

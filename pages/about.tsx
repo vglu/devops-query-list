@@ -2,7 +2,7 @@ import React from 'react';
 import { useSession } from "next-auth/react";
 import styles from '../styles/Home.module.css';
 import Head from 'next/head';
-import Image from 'next/image'
+import Image from "next/legacy/image"
 import { IExtSession } from '../components/types';
 
 const About = () => {
