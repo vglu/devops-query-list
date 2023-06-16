@@ -154,7 +154,8 @@ function ProjTable(ret: serverRet) {
         if (validationErrors && !Object.keys(validationErrors).length) {
             const savedRow: Prisma.ProjTableCreateInput = values as Prisma.ProjTableCreateInput;
             savedRow.ownerId = ownerId;
-            savedRow.disabled = (savedRow.disabled === 'true') ? true : (savedRow.disabled === 'false') ? false : true;
+            //savedRow.disabled = (savedRow.disabled  === 'true') ? true : (savedRow.disabled === 'false') ? false : true;
+            console.log("savedRow.disabled)", savedRow.disabled);
             tableData[row.index] = savedRow as IProj;
             // send/receive api updates here, then refetch or update local table data for re-render
             setTableData([...tableData]);

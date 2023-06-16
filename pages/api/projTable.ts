@@ -44,7 +44,7 @@ export default async function handler(
               })
           break;
         case 'PUT':
-          //projData.disabled = (projData.disabled === 'true') ? true : (projData.disabled === 'false') ? false : true;
+          projData.disabled = (projData.disabled === 'true') ? true : (projData.disabled === 'false') ? false : true;
             ret = await prisma.projTable.update({
               where: {
                 ProjIdOwnerId: {
