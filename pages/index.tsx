@@ -1,28 +1,19 @@
 
-import { signIn, signOut, useSession } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import { IExtSession, IProjItem } from '../components/types';
 import type { GetServerSidePropsContext } from "next";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "./api/auth/[...nextauth]";
 
-import React, { FC, useCallback, useMemo, useState, useRef } from 'react';
-import MaterialReactTable, { MaterialReactTableProps, MRT_Cell, MRT_ColumnDef, MRT_Row } from 'material-react-table';
+import React, { useMemo, useState } from 'react';
+import MaterialReactTable, { MRT_ColumnDef } from 'material-react-table';
 import Link from 'next/link';
 import styles from '../styles/Home.module.css';
 import Head from 'next/head'
 import {
   Box,
   Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  IconButton,
-  MenuItem,
   Stack,
-  TextField,
-  Tooltip,
-  Alert,
   Typography 
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
@@ -34,7 +25,7 @@ type serverRet = {
   initialItemProjTable?: any | null;
 }
 
-async function getTableData(ownerId: string): Promise<IProjItem[]> {
+async function getTableData(ownerId: string) {
   console.log('ownerId',ownerId)
   try 
   {
@@ -64,7 +55,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     );
 
   
-  let pItems: IProjItem[] = [];
+  let pItems: IProjItem[] | undefined = [];
   
   if (extSession?.user?.id) {
     try {
@@ -236,8 +227,8 @@ return (
             gap: '10px',
           }}
         >
-          <Typography backgroundColor="#e6f7ff"><b>Description:</b> {row.original.description}</Typography>
-          <Typography backgroundColor="#e6ffff"><b>Last message:</b> {row.original.history}</Typography>
+          <Typography><b>Description:</b> {row.original.description}</Typography>
+          <Typography><b>Last message:</b> {row.original.history}</Typography>
         </Box>
       )}      
       renderTopToolbarCustomActions={() => (
