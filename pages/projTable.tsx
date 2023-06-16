@@ -404,18 +404,16 @@ export const CreateNewProjModal: FC<{
                                 />
                                 }
                                 if (column.accessorKey === 'disabled') { // checked={cell.getValue()? true: false}
-                                    return  <FormControlLabel 
+                                    return <Autocomplete
                                     key={column.accessorKey}
-                                    renderInput={(params) => <Checkbox {...params} label={column.header} />}
-                                    control={<Checkbox checked={enabled} />} label="Disabled" 
-                                    labelPlacement="start"
-                                    onChange={(event: any, newValue: boolean | null) => {
+                                    options={["true", "false"]}
+                                    renderInput={(params) => <TextField {...params} label={column.header} />}
+                                    onChange={(event: any, newValue: string | null) => {
                                         setValues({ ...values, ['disabled']: newValue })
-                                        setEnabled(newValue? true: false);
-                                    }}                                            
-                                    />
-                                 
-                                 }
+                                        setPat(newValue);
+                                    }}  
+                                    />                               
+                                }
                                 return <TextField
                                     key={column.accessorKey}
                                     label={column.header}

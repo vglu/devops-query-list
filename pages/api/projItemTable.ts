@@ -244,11 +244,11 @@ async function getWorkItemDetails(url: string, auth: string) {
       changedDate: dateStr,
       changedBy: fields["System.CreatedBy"]["displayName"] ? fields["System.CreatedBy"]["displayName"] : '',
       inactiveDays:inactiveDays ,
-      // id: '',
-      // project: null,
-      // queryName: null,
-      // lastComment: null,
-      // ownerId: null
+      id: '',
+      project: null,
+      queryName: null,
+      lastComment: null,
+      ownerId: null
     }
     //console.log('INSIDE DEBUG 3_____________________________________________')
     //console.log(itemDetails)

@@ -12,7 +12,7 @@ const About = () => {
     <div className={styles.container}>
       <Head>
         <title>About</title>
-        <meta name="description" content="About ADO query list" />
+        <meta name="description" content="ADO Query runner for" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
@@ -21,27 +21,27 @@ const About = () => {
           About
         </h1>
         <br />
-        <p><strong>Main goal of this project is to create a simple web application to query ADO work items and display them in a list.</strong></p>
+        <p><strong>The main goal of this project is to create a simple web application that allows the querying of ADO work items and displays them in a list.</strong></p>
 
         <div>
           <h2>Main menu</h2>
-          <Image src='/images/01.Menu.png' width={238} height={588} />
+          <Image src='/images/01.Menu.png' width={238} height={588} alt=''/>
         </div>
         <h2>PAT</h2>
-        <p>We have Personal access token (PAT) to authenticate to ADO and we can query work items using ADO REST API.</p>
+        <p>The tool has a Personal Access Token (PAT) to authenticate to Azure DevOps (ADO), enabling the querying of work items using the ADO REST API.</p>
 
-        <p>How create personal access token: <a href="https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops">MS documentation</a></p>
+        <p>How to create a personal access token: <a href="https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops">MS documentation</a></p>
         <div>
           <h3>PAT listpage</h3>
-          <Image src='/images/02.PATsetup.png' width={1881} height={597} />
+          <Image src='/images/02.PATsetup.png' width={1881} height={597} alt=''/>
         </div>
         <div>
-          <p>You can enter all necessary information about PAT to the form and save it to the database, where</p>
+          <p>All necessary information about the PAT can be entered into the form and saved to the database, where:</p>
           <ul>
-            <li>Pat id - identifier of your token in the site</li>
-            <li>Description - description of your token</li>
+            <li>Pat id - identifier of the token in the site</li>
+            <li>Description - description of the token</li>
             <li>Pat - token from Azure DevOps</li>
-            <li>Expiration date - date when token will be expired</li>
+            <li>Expiration date - the date when the token will expire</li>
           </ul>
         </div>
 
@@ -50,85 +50,84 @@ const About = () => {
 
 
         <h2>Project</h2>
-        <p>After than you can create projects. Project this is representation of any query from Azure DevOps. Project has this list of properties:</p>
+        <p>Afterward, projects can be created. A project represents any query from Azure DevOps and has the following list of properties:</p>
 
         <div>
           <h3>Project listpage</h3>
-          <Image src='/images/03.Projectlist.png' width={1649} height={651} />
+          <Image src='/images/03.Projectlist.png' width={1649} height={651} alt=''/>
         </div>
         <ul>
-          <li>ProjId - internal identifier of project</li>
-          <li>Organization, project name - we have 2 type of projects in ADO.
+          <li>ProjId - internal identifier of the project</li>
+          <li>Organization, project name - there are two types of projects in ADO.
             <ul>
               <li>First type is https://dev.azure.com/[organisation]/[project name]/</li>
               <li>Second type is https://[fixed value].visualstudio.com/[project name]/</li>
             </ul>
           </li>
-          <li>Query Id - identifier of query in ADO</li>
-          <li>URL to Project - link to project in ADO</li>
+          <li>Query Id - identifier of the query in ADO</li>
+          <li>URL to Project - link to the project in ADO</li>
           <li>PAT - personal access token for this project</li>
           <li>query Name - name of the Query</li>
-          <li>Disabled - is this project disable or enable for update</li>
+          <li>Disabled - indicates whether this project is disabled or enabled for update</li>
         </ul>
         <div>
           <h3>Project property</h3>
-          <Image src='/images/04.ProjectPropertyes.png' width={456} height={769} />
+          <Image src='/images/04.ProjectPropertyes.png' width={456} height={769} alt=''/>
         </div>
 
         <h2>Items</h2>
-        <p>Project items - this is list of work items from ADO for each project associated with ADO query</p>
+        <p>Project items - this is a list of work items from ADO for each project associated with the ADO query</p>
         <ul>
-          <li>Project - project field from project table</li>
-          <li>Query name - query name from project table</li>
+          <li>Project - project field from the project table</li>
+          <li>Query name - query name from the project table</li>
           <li>Item type - type of ADO Item</li>
           <li>State - ADO state</li>
-          <li>Assigned to - name of person for item assigned to (each project can have you with different name)</li>
-          <li>Email - email of person for item assigned to</li>
-          <li>id - id for item in ADO. You can click url on this field and follow to the ADO itself</li>
-          <li>Title - title of item</li>
-          <li>Priority - priority of item</li>
-          <li>Severity - severity of item</li>
-          <li>Changed date - date when item was changed last time</li>
-          <li>Changed by - name of person who changed item last time</li>
-          <li>Inactive days - how many days item was inactive</li>
-          <li>Description - description of item</li>
-          <li>Last message - last message for item</li>
+          <li>Assigned to - name of the person the item is assigned to (each project can have a different name assigned to it)</li>
+          <li>Email - email of the person the item is assigned to</li>
+          <li>id - id for the item in ADO. You can click on the URL in this field and be directed to ADO itself</li>
+          <li>Title - title of the item</li>
+          <li>Priority - priority of the item</li>
+          <li>Severity - severity of the item</li>
+          <li>Changed date - date when the item was last changed</li>
+          <li>Changed by - name of the person who last changed the item</li>
+          <li>Inactive days - how many days the item has been inactive</li>
+          <li>Description - description of the item</li>
+          <li>Last message - last message for the item</li>
         </ul>
 
         <div>
           <h3>List of ADO items</h3>
-          <Image src='/images/05.ListOfItems.png' width={1901} height={869} />
+          <Image src='/images/05.ListOfItems.png' width={1901} height={869} alt=''/>
         </div>
 
         <div>
-          <p>you can filter,sort,group expand items on the page</p>
-          <p>you can group by fields, filter by all set of data or for individual fields</p>
-          <p>you can have several group by fields</p>
+          <p>You can filter, sort, group, and expand items on the page.</p>
+          <p>You can group items by fields and filter by the entire dataset or individual fields.</p>
+          <p>You can have several group by fields.</p>
         </div>
         <div>
           <h3>Column actions</h3>
-          <Image src='/images/06.TablesProperty.png' width={1879} height={656} />
+          <Image src='/images/06.TablesProperty.png' width={1879} height={656} alt=''/>
         </div>
 
         <h2>Authentication</h2>
-        <div>We use next-auth to authenticate users.
-          Now you can authenticate over custom email or over github account.
+        <div>Next-auth is used to authenticate users. Currently, you can authenticate using a custom email or a GitHub account.
         </div>
 
         <h2>Known issues</h2>
         <ul>
-          <li>Refresh button: when you press refresh button it start update process but not show any changes in the main page. Workaround it is refresh page in browser.</li>
-          <li>After create access token Expiration date field shows date and time. Workaround it is refresh page in browser.</li>
-          <li>Project disable field can accept only string value true and false. Workaround it is enter true or false manually.</li>
+          <li>Refresh button: When you press the refresh button, it starts the update process but does not display any changes on the main page. The workaround is to refresh the page in the browser.</li>
+          <li>After creating an access token, the Expiration date field shows the date and time. The workaround is to refresh the page in the browser.</li>
+          <li>The Project disable field can only accept the string value true or false. The workaround is to manually enter true or false.</li>
         </ul>
 
         <h2>Future plans</h2>
         <ul>
-          <li>add more authentication providers google ...</li>
-          <li>add possibility to make replace one value to another. Example - on each project you can have different email or nick name. Main idea here it is has one standard list to comfortable group by, filtering and so on</li>
-          <li>update index page items on load page</li>
-          <li>mark somehow new lines (probably new field tick box and color line somehow)</li>
-          <li>remember state for table for each user. Best choice to do like in D365FO/CE where you can save several views and make one of them like default</li>
+          <li>Add more authentication providers (e.g., Google).</li>
+          <li>Add the ability to replace one value with another. For example, you can have different email or nickname for each project. The main idea here is to have one standard list for comfortable grouping, filtering, and so on.</li>
+          <li>Update index page items on page load.</li>
+          <li>Mark new lines in some way (possibly with a new field tick box and color-coded lines).</li>
+          <li>Remember the table state for each user. The best choice is to implement it similar to D365FO/CE, where you can save several views and make one of them the default.</li>
         </ul>
       </main>
       <br />
