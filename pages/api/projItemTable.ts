@@ -1,8 +1,8 @@
-import { IExtSession, IPat, IProj, IProjItem } from './../../components/types';
+import { IExtSession, IProj, IProjItem } from './../../components/types';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 import prisma from '../../components/client';
-import { PatTable, Prisma, ProjItem, ProjTable } from '@prisma/client';
+import { PatTable, ProjItem, ProjTable } from '@prisma/client';
 import { stripHtml } from "string-strip-html";
 import dateFormat from 'dateformat';
 import { getServerSession } from 'next-auth';
@@ -228,7 +228,7 @@ async function getWorkItemDetails(url: string, auth: string) {
     const diffTime = Math.abs(currDateTime.getTime() - date.getTime());
     const inactiveDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
 
-    const itemDetails: ProjItem = {
+    const itemDetails: IProjItem = {
       workItemType: fields["System.WorkItemType"],
       state: fields["System.State"],
       assignToName: fields["System.AssignedTo"]["displayName"],
@@ -244,7 +244,6 @@ async function getWorkItemDetails(url: string, auth: string) {
       changedDate: dateStr,
       changedBy: fields["System.CreatedBy"]["displayName"] ? fields["System.CreatedBy"]["displayName"] : '',
       inactiveDays:inactiveDays ,
-      id: '',
       project: null,
       queryName: null,
       lastComment: null,
