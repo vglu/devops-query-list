@@ -67,6 +67,7 @@ export interface IProjItem {
     changedDate?: string | null;
     changedBy?: string | null;
     inactiveDays?: number | null;
+    ownerId?: string | null;
 }
 
 // work items short information
@@ -75,11 +76,5 @@ export interface IWorkItemShort {
     url?: string | null;
 }
 
-type TMessage = {
-    ownerId: string;
-    action: string;
-    message: string;
-    onoff: boolean;
-  };
 
   
