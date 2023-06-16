@@ -17,7 +17,7 @@ export interface IProj {
     ownerId?: string | null;        // The owner of the project
     patTablePatId?: string | null;  
     PatTableCreateNestedOneWithoutProjTableInput?: string | null;
-    disabled?: boolean | null;      // Is the project disabled?
+    disabled?: boolean | null | string;      // Is the project disabled?
 }
 
 // This is the type of the personal access token object.
